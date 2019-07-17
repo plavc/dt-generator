@@ -64,8 +64,7 @@ typings/
 **/*.exe
 
 .gitignore
-test
-test-out
 .DS_Store
 .npmrc
 package-lock.json
+examples

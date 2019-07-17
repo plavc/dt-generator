@@ -2,12 +2,20 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as YAML from 'yaml';
 
-export function createParent(fileName: string) {
-    createFolder(path.dirname(fileName));
+export function getContainingDir(filePath: string) {
+    return path.dirname(filePath);
+}
+
+export function buildPath(...pathSegments: string[]): string {
+    return path.resolve(...pathSegments);
+}
+
+export function createContainingDir(fileName: string) {
+    createDir(path.dirname(fileName));
     return fileName;
 }
 
-export function createFolder(folderPath: string) {
+export function createDir(folderPath: string) {
     if (!fs.existsSync(folderPath)) {
         fs.mkdirSync(folderPath, { recursive: true });
     }
@@ -20,12 +28,12 @@ export function readFile(fileName: string): string {
 }
 
 export function save(fileName: string, content: string) {
-    createParent(fileName);
+    createContainingDir(fileName);
     fs.writeFileSync(fileName, content);
 }
 
 export function writeJson(fileName: string, obj: any): void  {
-    createParent(fileName);
+    createContainingDir(fileName);
     fs.writeFileSync(fileName, JSON.stringify(obj, null, 2), { encoding: 'UTF-8'});
 }
 
@@ -46,6 +54,6 @@ export function readYaml<T>(filePath: string): T | undefined {
     return undefined;
 }
 
-export function exists(filePath: string): boolean {
+export function fileExists(filePath: string): boolean {
     return fs.existsSync(filePath);
 }

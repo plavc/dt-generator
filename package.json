@@ -1,13 +1,16 @@
 {
-  "name": "@plavc/generator",
+  "name": "@plavc/dt-generator",
   "version": "1.0.0",
-  "description": "Generic code generator.",
+  "description": "Dynamic Template Generator.",
   "main": "dist/cli.js",
   "bin": {
-    "plavc-generator": "dist/cli.js"
+    "dt-generator": "dist/cli.js"
   },
   "author": "gregor@plavcak.net",
   "license": "MIT",
+  "repository": {
+    "url": "https://github.com/plavc/dt-generator.git"
+  },
   "files": [
     "dist/**/*"
   ],
@@ -15,15 +18,16 @@
     "build": "tsc -d",
     "watch": "tsc -w",
     "lint": "tslint --project .",
-    "start": "node dist/cli test/config.yml test/test.yml"
+    "format": "prettier",
+    "test": "node dist/cli examples/config.yml examples/test.yml"
   },
   "devDependencies": {
     "@types/mustache": "^0.8.32",
-    "@types/node": "^11.13.4",
+    "@types/node": "^11.13.18",
     "@types/yaml": "^1.0.2",
     "prettier": "^1.18.2",
     "tslint": "^5.18.0",
-    "typescript": "^3.0.3"
+    "typescript": "^3.5.3"
   },
   "dependencies": {
     "commander": "^2.20.0",

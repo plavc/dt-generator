@@ -1,12 +1,11 @@
-import { ITemplate } from '../config';
+import {ITemplate} from '../config';
 
-const VAR_REGEX = /(\$\{[A-Za-z0-9-._]*\})/gm;
+const VAR_REGEX = /(\${[A-Za-z0-9-._]*})/gm;
 
 export function resolveGeneratedPath(template: ITemplate, objMap: any): string {
-    const vars = findVarables(template.target);
+    const vars = findVariables(template.target);
     const varsValues = resolveVariables(vars, objMap);
-    const out = replaceVariables(template.target, varsValues);
-    return out;
+    return replaceVariables(template.target, varsValues);
 }
 
 function replaceVariables(input: string, variables: Map<string, any>) {
@@ -28,7 +27,7 @@ function resolveVariables(variables: string[], objMap: any): Map<string, any> {
     return map;
 }
 
-function findVarables(source: string): string[] {
+function findVariables(source: string): string[] {
     const arr: string[] = [];
     let m;
 

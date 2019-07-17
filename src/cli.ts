@@ -1,6 +1,7 @@
 import * as program from 'commander';
 import { Generator } from './generator';
-import { readConfig, readModel } from './reader';
+import { GeneratorOptions } from './options';
+import { readModel } from './reader';
 
 class Cli {
 
@@ -10,7 +11,7 @@ class Cli {
     public run() {
 
         program
-            .name('generator')
+            .name('pl-generator')
             .version(require('../package.json').version, '-v, --version')
             .description(require('../package.json').description)
             .arguments('<configFile> <modelFile>')
@@ -26,14 +27,14 @@ class Cli {
         instance.configFile = configFile;
         instance.modelFile = modelFile;
 
-        const config = readConfig(instance.configFile);
         const test = readModel(instance.modelFile);
 
-        const g = new Generator();
-        g.enableObjectStringify();
+        const options = GeneratorOptions.create(instance.configFile);
 
-        if (config && test) {
-            g.generate(config, test);
+        if (options && test) {
+            const g = new Generator(options);
+            g.enableObjectStringify();
+            g.generate(test);
         }
     }
 }

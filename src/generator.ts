@@ -1,31 +1,38 @@
-import { IConfig, ITemplate } from './config';
-import { exists } from './utils/files';
-import { Logger } from './utils/logger';
-import { renderAndSave } from './utils/mustache';
-import { resolveGeneratedPath } from './utils/path-resolver';
-import { StringDecorator, stringDecoratorStringifyReplacer } from './utils/string-decorator';
+import {ITemplate} from './config';
+import {MustacheFn} from './mustache-fn';
+import {GeneratorOptions} from './options';
+import {
+    buildPath,
+    fileExists,
+    Logger,
+    readFile,
+    renderAndSave,
+    resolveGeneratedPath,
+    StringDecorator,
+    stringDecoratorStringifyReplacer,
+} from './utils';
 
 export class Generator {
 
-    public readonly fn: any = { };
+    public readonly fn: MustacheFn = new MustacheFn();
 
-    constructor() {
-        this.fn.lowerCased = () => {
-            return (val: string, render: any) => {
-                return render(val).toLowerCase();
-            };
-        };
-    }
+    private $templatesCache: Map<string, string> = new Map<string, string>();
 
-    public generate(config: IConfig, data: any): void {
+    constructor(
+        public readonly options: GeneratorOptions,
+    ) { }
+
+    public generate(data: any): void {
 
         this.decorateStrings(data);
 
-        config.templates.filter((t: ITemplate) => !t.disabled).forEach((t: ITemplate) => {
+        this.options.config.templates.filter((t: ITemplate) => !t.disabled).forEach((t: ITemplate) => {
             this.evalTemplate(t.selector, data, (_: any, objMap: any) => {
                 this._generate(t, objMap);
             });
         });
+
+        this.destroy();
     }
 
     public enableObjectStringify() {
@@ -37,16 +44,32 @@ export class Generator {
         });
     }
 
+    private destroy() {
+        this.$templatesCache = new Map<string, string>();
+    }
+
     private _generate(template: ITemplate, data: any) {
         const fileOut = resolveGeneratedPath(template, data);
 
-        if (template.skipExisting && exists(fileOut)) {
+        if (template.skipExisting && fileExists(fileOut)) {
             Logger.info('Skipped. File: "' + fileOut + '" exists and "skipExisting" flag is enabled.');
         }
 
         data.fn = this.fn;
 
-        renderAndSave(template.source, data, fileOut);
+        const templatePath = buildPath(this.options.templatesDirectory, template.source);
+
+        renderAndSave(templatePath, data, fileOut, this.getTemplate(templatePath));
+    }
+
+    private getTemplate(templatePath: string): string | undefined {
+        if (this.$templatesCache.has(templatePath)) {
+            return this.$templatesCache.get(templatePath);
+        } else {
+            const templateSource = readFile(templatePath);
+            this.$templatesCache.set(templatePath, templateSource);
+            return templateSource;
+        }
     }
 
     private evalTemplate(selector: string, data: any, call: (val: any, objMap: any) => void) {
@@ -106,10 +129,14 @@ export class Generator {
             const item = data[key];
             if (Array.isArray(item)) {
                 item.forEach((arrItem: any) => this.decorateStrings(arrItem));
-            } else if (typeof item === 'object') {
+            } else if (typeof item === 'object' && !(item instanceof StringDecorator)) {
                 this.decorateStrings(item);
             } else if (typeof item === 'string') {
-                data[key] = new StringDecorator(item);
+                try {
+                    data[key] = new StringDecorator(item);
+                } catch (error) {
+                    // console.warn(error);
+                }
             }
         });
     }

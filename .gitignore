@@ -62,9 +62,7 @@ typings/
 
 dist
 **/*.exe
-out
 .vscode
 .DS_Store
 .npmrc
-test
-templates
+examples

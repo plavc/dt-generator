@@ -24,11 +24,11 @@ export class StringDecorator {
     }
 
     get kebabToCamelCased(): StringDecorator {
-        return new StringDecorator(this.value.replace(/(\-\w)/g, (m) => m[1].toUpperCase()));
+        return new StringDecorator(this.value.replace(/(-\w)/g, (m) => m[1].toUpperCase()));
     }
 
     get snakeToCamelCased(): StringDecorator {
-        return new StringDecorator(this.value.replace(/(\_\w)/g, (m) => m[1].toUpperCase()));
+        return new StringDecorator(this.value.replace(/(_\w)/g, (m) => m[1].toUpperCase()));
     }
 
     get varName(): StringDecorator {
@@ -41,13 +41,12 @@ export class StringDecorator {
 }
 
 export function stringDecoratorStringifyReplacer(_: string, value: any) {
-    // Filtering out properties
     if (value instanceof StringDecorator) {
         return value.value;
     }
     return value;
 }
 
-StringDecorator.prototype.toString = function dogToString() {
+StringDecorator.prototype.toString = function decoratoToString() {
     return this.value;
 };

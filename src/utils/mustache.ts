@@ -10,8 +10,14 @@ export function render(templateFile: string, data: any): string {
         loadPartials(path.dirname(templateFile)));
 }
 
-export function renderAndSave(templateFile: string, data: any, fileOut: string): void {
-    const rendered = render(templateFile, data);
+export function renderAndSave(templateFile: string, data: any, fileOut: string, templateSource?: string): void {
+    if (!templateSource) {
+        templateSource = readFile(templateFile);
+    }
+    const rendered = Mustache.render(
+        templateSource,
+        data,
+        loadPartials(path.dirname(templateFile)));
     save(fileOut, rendered);
 }
 
